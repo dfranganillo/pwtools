@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 
 def _u(txt):
@@ -43,7 +44,8 @@ class PasswordChecker:
             'quertyuiop{}|asdfghjkl;"zxcvbnm<>?',
             'quertyuiopasdfghjklzxcvbnm',
             '1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik,9ol.0p;/-[\'=]\\',
-            'qazwsxedcrfvtgbyhnujmikolp'
+            'qazwsxedcrfvtgbyhnujmikolp',
+            'º1234567890\'¡'
             ]
         self.words = []
 
