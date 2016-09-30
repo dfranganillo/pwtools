@@ -1,5 +1,11 @@
 import re
-import string
+
+def _u(txt):
+    if not txt: return u""
+    if isinstance(txt, unicode):
+        return txt
+    else:
+        return txt.decode('utf-8')
 
 class PasswordChecker:
 
@@ -14,11 +20,12 @@ class PasswordChecker:
     ReasonWord = "based on a dictionary word"
     ReasonSeq = "based on a common sequence of characters"
 
+    leetphabet = ('@483!|10$5+7', 'aabeillosstt')
+
     def __init__(self, dictionary='/usr/share/dict/words'):
         """Create a new PasswordChecker object; takes an optional dictionary
         filename argument, which defaults to '/usr/share/dict/words'."""
-        self.deLeet = string.maketrans('@483!|10$5+7',
-                                       'aabeillosstt')
+        self.deLeetU = self._makeUnicodeTransTable(*self.leetphabet[:])
         self.charSetLengths = [ 10, 36, 62, 95 ]
         self.minLengths = [ None, 12, 8, 7 ]
         self.minWords = 3
@@ -40,13 +47,23 @@ class PasswordChecker:
             ]
         self.words = []
 
-        f = open(dictionary)
-        try:
+        with open(dictionary) as f:
             for line in f:
-                self.words.append(line.strip(' \t\r\n'))
-        except:
-            f.close()
-        
+                self.words.append(_u(line.strip(' \t\r\n')))
+
+
+    def _makeUnicodeTransTable(self, _from, _to):
+        tbl = dict()
+        l = len(_from)
+        if l != len(_to):
+            return dict()
+
+        for i in range(l):
+            tbl[ord(_from[i])] = ord(_to[i])
+
+        return tbl
+
+
     def expectedDifferentChars(self, characterSetLen, length):
         """Return the expected number of different characters for a string
         of the specified length drawn randomly from a character set of given
@@ -60,6 +77,7 @@ class PasswordChecker:
         and lower case letters, non-ASCII characters and other characters.
         Also considers the number of 'words'.  Discounts are applied for
         leading uppercase characters and also for trailing digits."""
+        password = _u(password)
         length = len(password)
         if length == 0:
             return True
@@ -146,7 +164,9 @@ class PasswordChecker:
 
     def mapLeet(self, password):
         """Translate from 'leet'-speak to normal text."""
-        return password.lower().translate(self.deLeet)
+        translation = password.lower().translate(self.deLeetU)
+
+        return translation
 
     def isBasedOn(self, needle, haystack, original, reversed=False,
                   discount=False):
@@ -165,7 +185,7 @@ class PasswordChecker:
                     if pos == -1:
                         break
                     found = True
-                    
+
                     if not discount:
                         if not reversed:
                             tmp = original[:pos] + original[pos+sublen:]
@@ -180,13 +200,13 @@ class PasswordChecker:
                             if self.isSimplePassword(original, bias):
                                 return True
                             worstBias = bias
-                            
+
                     hofs = pos + 1
 
                 # If no match of length sublen, then no match of length >sublen
                 if not found:
                     break
-                    
+
         return False
 
     def isBasedOnWord(self, needle, original, reversed=False):
@@ -223,7 +243,7 @@ class PasswordChecker:
                 return PasswordChecker.ReasonWord
 
         return False
-    
+
     def checkPassword(self, password, old_password=None, username=None,
                       personal=None):
         """Checks password to see whether or not it is good.  Optionally
@@ -233,18 +253,20 @@ class PasswordChecker:
 
         Returns a reason string (see the ReasonXXX constants), or False if
         the password is OK."""
-        if old_password is not None \
-           and password == old_password:
+        password = _u(password)
+        old_password = _u(old_password)
+        username = _u(username)
+        personal = _u(personal)
+
+        if old_password and password == old_password:
             return PasswordChecker.ReasonSame
-        
-        if self.minLength is not None \
-           and len(password) < self.minLength:
+
+        if self.minLength and len(password) < self.minLength:
             return PasswordChecker.ReasonShort
 
-        if self.maxLength is not None \
-           and len(password) > self.maxLength:
+        if self.maxLength and len(password) > self.maxLength:
             return PasswordChecker.ReasonLong
-        
+
         if self.isSimplePassword (password):
             if self.minLengths[1] is not None \
                and len(password) < self.minLengths[1] \
@@ -255,19 +277,19 @@ class PasswordChecker:
         notLeet = self.mapLeet(password)
         notLeetReverse = notLeet[::-1]
 
-        if old_password is not None:
+        if old_password:
             notLeetOld = self.mapLeet(old_password)
             if self.isBasedOn(notLeetOld, notLeet, password) \
                or self.isBasedOn(notLeetOld, notLeetReverse, password, True):
                 return PasswordChecker.ReasonSimilar
-            
-        if username is not None:
+
+        if username:
             notLeetUser = self.mapLeet(username)
             if self.isBasedOn(notLeetUser, notLeet, password) \
                or self.isBasedOn(notLeetUser, notLeetReverse, password, True):
                 return PasswordChecker.ReasonPersonal
 
-        if personal is not None:
+        if personal:
             for extra in personal:
                 notLeetExtra = self.mapLeet(extra)
                 if self.isBasedOn(notLeetExtra, notLeet, password) \
