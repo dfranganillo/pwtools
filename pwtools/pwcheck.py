@@ -21,7 +21,7 @@ class PasswordChecker:
     ReasonWord = "based on a dictionary word"
     ReasonSeq = "based on a common sequence of characters"
 
-    leetphabet = ('@483!|10$5+7', 'aabeillosstt')
+    leetphabet = ('aabeillosstt', '@483!|10$5+7')
 
     def __init__(self, dictionary='/usr/share/dict/words'):
         """Create a new PasswordChecker object; takes an optional dictionary
@@ -36,16 +36,16 @@ class PasswordChecker:
         self.minLength = None
         self.trailingDigitsRegexp = re.compile('[0-9]+$')
         self.commonSequences = [
-            '0123456789',
-            '`1234567890-=',
-            '~!@#$%^&*()_+',
-            'abcdefghijklmnopqrstuvwxyz',
-            'quertyuiop[]\\asdfghjkl;\'zxcvbnm,./',
-            'quertyuiop{}|asdfghjkl;"zxcvbnm<>?',
-            'quertyuiopasdfghjklzxcvbnm',
-            '1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik,9ol.0p;/-[\'=]\\',
-            'qazwsxedcrfvtgbyhnujmikolp',
-            'º1234567890\'¡'
+            u'0123456789',
+            u'`1234567890-=',
+            u'~!@#$%^&*()_+',
+            u'abcdefghijklmnopqrstuvwxyz',
+            u'quertyuiop[]\\asdfghjkl;\'zxcvbnm,./',
+            u'quertyuiop{}|asdfghjkl;"zxcvbnm<>?',
+            u'quertyuiopasdfghjklzxcvbnm',
+            u'1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik,9ol.0p;/-[\'=]\\',
+            u'qazwsxedcrfvtgbyhnujmikolp',
+            u'º1234567890\'¡'
             ]
         self.words = []
 
@@ -195,11 +195,13 @@ class PasswordChecker:
                             rpos = length - pos
                             tmp = original[:rpos] + original[rpos+sublen:]
                         if self.isSimplePassword(tmp, self.matchLength - 1):
+                            print "is simpleP %s, %i"%(tmp, self.matchLength - 1)
                             return True
                     else:
                         bias = self.matchLength - sublen - 1
                         if bias < worstBias:
                             if self.isSimplePassword(original, bias):
+                                print "is simpleP %s, %i"%(original, bias)
                                 return True
                             worstBias = bias
 
@@ -299,6 +301,7 @@ class PasswordChecker:
                                          password, True):
                     return PasswordChecker.ReasonPersonal
 
+        print "NotL", notLeet, password
         reason = self.isBasedOnWord(notLeet, password)
         if not reason:
             reason = self.isBasedOnWord(notLeetReverse, password)
