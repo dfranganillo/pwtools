@@ -195,13 +195,11 @@ class PasswordChecker:
                             rpos = length - pos
                             tmp = original[:rpos] + original[rpos+sublen:]
                         if self.isSimplePassword(tmp, self.matchLength - 1):
-                            print "is simpleP %s, %i"%(tmp, self.matchLength - 1)
                             return True
                     else:
                         bias = self.matchLength - sublen - 1
                         if bias < worstBias:
                             if self.isSimplePassword(original, bias):
-                                print "is simpleP %s, %i"%(original, bias)
                                 return True
                             worstBias = bias
 
@@ -301,7 +299,6 @@ class PasswordChecker:
                                          password, True):
                     return PasswordChecker.ReasonPersonal
 
-        print "NotL", notLeet, password
         reason = self.isBasedOnWord(notLeet, password)
         if not reason:
             reason = self.isBasedOnWord(notLeetReverse, password)
