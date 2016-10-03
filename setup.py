@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "pwtools",
-    version = "0.4",
+    version = "0.5",
     description = "Password generation and security checking",
     license = "MIT License",
     long_description = """\
@@ -14,7 +14,7 @@ but is implemented in pure Python.
     author_email = "alastair@alastairs-place.net",
     url = "http://alastairs-place.net/pwtools",
     classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Beta',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: MIT License',
     'Topic :: System',
