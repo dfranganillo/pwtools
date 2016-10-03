@@ -21,7 +21,7 @@ class PasswordChecker:
     ReasonWord = "based on a dictionary word"
     ReasonSeq = "based on a common sequence of characters"
 
-    leetphabet = ('aabeillosstt', '@483!|10$5+7')
+    leetphabet = ('@483!|10$5+7', 'aabeillosstt')
 
     def __init__(self, dictionary='/usr/share/dict/words'):
         """Create a new PasswordChecker object; takes an optional dictionary
